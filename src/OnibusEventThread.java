@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 import com.espertech.esper.client.EPRuntime;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -36,6 +39,7 @@ public class OnibusEventThread implements Runnable {
 		//BufferedReader br = null;
 		String line = "";
 		String csvSplitBy = ";";
+		JsonParser parser = new JsonParser();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 			while (running) {
@@ -57,9 +61,24 @@ public class OnibusEventThread implements Runnable {
 								AMQP.BasicProperties properties, byte[] body)
 										throws IOException {
 							String message = new String(body, "UTF-8");
-							System.out.println(" [x] Received '" + message + "'");
+							//System.out.println(" [x] Received '" + message + "'");
 							
+							JsonElement element = parser.parse(message);
+							JsonObject jsonObject = element.getAsJsonObject();
 							
+							try {
+								String unidade = jsonObject.get("Unidade").getAsString();
+								String nome = jsonObject.get("nome").getAsString();
+								Date instante = Globals.dateFormat.parse(jsonObject.get("Instante").getAsString());
+								long coordX = Long.parseLong(jsonObject.get("CoordX").getAsString());
+								long coordY = Long.parseLong(jsonObject.get("CoordY").getAsString());
+
+								epRuntime.sendEvent(new OnibusEvent(unidade, nome, instante, coordX, coordY));
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
 						}
 					};
 					

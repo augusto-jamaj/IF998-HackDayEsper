@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="/Users/jamaj/matrix/2018-1/_lib/esper-7.1.0/esper/lib/janino-3.0.7.jar"/>
 	<classpathentry kind="lib" path="/Users/jamaj/matrix/2018-1/_lib/esper-7.1.0/esper/lib/commons-compiler-3.0.7.jar"/>
 	<classpathentry kind="lib" path="/Users/jamaj/matrix/2018-1/CIn/SistDist/HackDay/lib/amqp-client-4.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/jamaj/matrix/2018-1/CIn/SistDist/HackDay/lib/gson-2.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
