@@ -14,13 +14,17 @@ public class OnibusEvent {
 	//private String posicao;
 	//private String viagem;
 	//private String velocidade;
+	private double latitude;
+	private double longitude;
 	
-	public OnibusEvent(String unidade, String nome, Date instante, long coordX, long coordY) {
+	public OnibusEvent(String unidade, String nome, Date instante, long coordX, long coordY, double latitude, double longitude) {
 		this.unidade = unidade;
 		this.nome = nome;
 		this.instante = instante;
 		this.coordX = coordX;
 		this.coordY = coordY;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 	
 	public String getUnidade() {
@@ -37,6 +41,12 @@ public class OnibusEvent {
 	}
 	public long getCoordY() {
 		return coordY;
+	}
+	public double getLatitude() {
+		return latitude;
+	}
+	public double getLongitude() {
+		return longitude;
 	}
 	
 }

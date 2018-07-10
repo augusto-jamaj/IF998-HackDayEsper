@@ -41,49 +41,56 @@ public class OnibusEventThread implements Runnable {
 		String csvSplitBy = ";";
 		JsonParser parser = new JsonParser();
 		
-		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-			while (running) {
-				try {
-					Thread.sleep(10000);
-					
-					ConnectionFactory factory = new ConnectionFactory();
-					factory.setHost("172.22.43.58");
-					factory.setUsername("caio2");
-					factory.setPassword("caio");
-					Connection connection = factory.newConnection();
-					Channel channel = connection.createChannel();
-					
-					channel.queueDeclare(Globals.QUEUE_NAME, false, false, false, null);
-					System.out.println(" [*] Esperando mensagens...");
-					
-					Consumer consumer = new DefaultConsumer(channel) {
-						public void handleDelivery(String consumerTag, Envelope envelope,
-								AMQP.BasicProperties properties, byte[] body)
-										throws IOException {
-							String message = new String(body, "UTF-8");
-							//System.out.println(" [x] Received '" + message + "'");
+		while (running) {
+			try {
+				ConnectionFactory factory = new ConnectionFactory();
+				//factory.setHost("172.22.43.58");
+				//factory.setHost("localhost");
+				factory.setHost("172.22.43.58");
+				//factory.setUsername("caio");
+				factory.setUsername("caio2");
+				factory.setPassword("caio");
+				Connection connection = factory.newConnection();
+				Channel channel = connection.createChannel();
+				
+				channel.queueDeclare(Globals.QUEUE_NAME, false, false, false, null);
+				System.out.println(" [*] Esperando mensagens...");
+				
+				Consumer consumer = new DefaultConsumer(channel) {
+					public void handleDelivery(String consumerTag, Envelope envelope,
+							AMQP.BasicProperties properties, byte[] body)
+									throws IOException {
+						String message = new String(body, "UTF-8");
+						//System.out.println(" [x] Received '" + message + "'");
+						
+						JsonElement element = parser.parse(message);
+						JsonObject jsonObject = element.getAsJsonObject();
+						
+						try {
+							String unidade = jsonObject.get("Unidade").getAsString();
+							String nome = jsonObject.get("nome").getAsString();
+							Date instante = Globals.dateFormat.parse(jsonObject.get("Instante").getAsString());
+							long coordX = Long.parseLong(jsonObject.get("CoordX").getAsString());
+							long coordY = Long.parseLong(jsonObject.get("CoordY").getAsString());
+							double latitude = Double.parseDouble(jsonObject.get("x").getAsString());
+							double longitude = Double.parseDouble(jsonObject.get("y").getAsString());
 							
-							JsonElement element = parser.parse(message);
-							JsonObject jsonObject = element.getAsJsonObject();
-							
-							try {
-								String unidade = jsonObject.get("Unidade").getAsString();
-								String nome = jsonObject.get("nome").getAsString();
-								Date instante = Globals.dateFormat.parse(jsonObject.get("Instante").getAsString());
-								long coordX = Long.parseLong(jsonObject.get("CoordX").getAsString());
-								long coordY = Long.parseLong(jsonObject.get("CoordY").getAsString());
-
-								epRuntime.sendEvent(new OnibusEvent(unidade, nome, instante, coordX, coordY));
-							} catch (ParseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-
+							System.out.println(" [*] Mensagem recebida: " + message);
+							epRuntime.sendEvent(new OnibusEvent(unidade, nome, instante, coordX, coordY, latitude, longitude));
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					};
-					
-					channel.basicConsume(Globals.QUEUE_NAME, true, consumer);
-					
+
+					}
+				};
+				
+				channel.basicConsume(Globals.QUEUE_NAME, true, consumer);
+				
+				Thread.sleep(10);
+				
+				connection.close();
+				
 //					while ((line = br.readLine()) != null) {
 //						try {
 //							String[] dadosEvento = line.split(csvSplitBy);
@@ -98,17 +105,20 @@ public class OnibusEventThread implements Runnable {
 //							e.printStackTrace();
 //						}
 //					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					running = false;
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//					running = false;
 				} catch (TimeoutException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		
 //		while (running) {
@@ -122,6 +132,7 @@ public class OnibusEventThread implements Runnable {
 //			//epRuntime.sendEvent(new OnibusEventEvent(10f + 20f*rand.nextFloat()));
 //			//epRuntime.sendEvent(new OnibusEvent());
 //		}
+
 	}
 	
 	public void stop(long millis) {
