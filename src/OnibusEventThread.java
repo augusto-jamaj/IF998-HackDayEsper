@@ -19,13 +19,11 @@ import com.rabbitmq.client.Envelope;
 
 public class OnibusEventThread implements Runnable {
 	
-	//private Random rand;
 	private EPRuntime epRuntime;
 	private boolean running;
 	private Thread thread;
 	
 	public OnibusEventThread(EPRuntime epRuntime) {
-		//this.rand = new Random();
 		this.epRuntime = epRuntime;
 		this.running = true;
 		this.thread = new Thread(this);
@@ -34,20 +32,12 @@ public class OnibusEventThread implements Runnable {
 
 	@Override
 	public void run() {
-		//String csvFile = "/Users/jamaj/matrix/2018-1/CIn/SistDist/HackDay/instrucoes/amostra_dados_onibus_recife.csv";
-		String csvFile = "/Users/jamaj/matrix/2018-1/CIn/SistDist/HackDay/instrucoes/amostra_dados_onibus_recife_sorted.csv";
-		//BufferedReader br = null;
-		String line = "";
-		String csvSplitBy = ";";
 		JsonParser parser = new JsonParser();
 		
 		while (running) {
 			try {
 				ConnectionFactory factory = new ConnectionFactory();
-				//factory.setHost("172.22.43.58");
-				//factory.setHost("localhost");
 				factory.setHost("172.22.43.58");
-				//factory.setUsername("caio");
 				factory.setUsername("caio2");
 				factory.setPassword("caio");
 				Connection connection = factory.newConnection();
@@ -91,47 +81,10 @@ public class OnibusEventThread implements Runnable {
 				
 				connection.close();
 				
-//					while ((line = br.readLine()) != null) {
-//						try {
-//							String[] dadosEvento = line.split(csvSplitBy);
-//							String unidade = dadosEvento[0];
-//							String nome = dadosEvento[1];
-//							Date instante = Globals.dateFormat.parse(dadosEvento[3]);
-//							long coordX = Long.parseLong(dadosEvento[6]);
-//							long coordY = Long.parseLong(dadosEvento[7]);
-//						
-//							epRuntime.sendEvent(new OnibusEvent(unidade, nome, instante, coordX, coordY));
-//						} catch (ParseException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//					running = false;
-				} catch (TimeoutException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 		}
-		
-//		while (running) {
-//			try {
-//				Thread.sleep(10);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				running = false;
-//			}
-//			//epRuntime.sendEvent(new OnibusEventEvent(10f + 20f*rand.nextFloat()));
-//			//epRuntime.sendEvent(new OnibusEvent());
-//		}
 
 	}
 	
@@ -139,7 +92,6 @@ public class OnibusEventThread implements Runnable {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.running = false;
